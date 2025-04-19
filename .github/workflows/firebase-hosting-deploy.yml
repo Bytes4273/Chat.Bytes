@@ -1,20 +1,13 @@
-name: Deploy to Firebase Hosting on merge
+name: Debug Secret Simple
 on:
   push:
     branches:
       - main
 jobs:
-  build_and_deploy:
+  debug:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Debug Raw Secret
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Print secret
         run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_BYTES_WORLD__BUSINESS }}"
-      - name: Debug Firebase Service Account Secret (Decoded)
-        run: echo "${{ secrets.FIREBASE_SERVICE_ACCOUNT_BYTES_WORLD__BUSINESS }}" | base64 --decode | jq
-      - uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: ${{ secrets.GITHUB_TOKEN }}
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BYTES_WORLD__BUSINESS }}
-          projectId: bytes-world--business
-          channelId: live
