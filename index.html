@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Byte$ Premium Interativo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0a0a0a, #1c1c3c);
+      color: #00ffee;
+      overflow-x: hidden;
+    }
+
+    header {
+      text-align: center;
+      padding: 1rem;
+      font-size: 2rem;
+      color: #fff;
+      text-shadow: 0 0 10px #00ffee;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin: 1rem;
+    }
+
+    .actions button {
+      background-color: #00ffee;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 0 10px #00ffee;
+      transition: transform 0.2s;
+    }
+
+    .actions button:hover {
+      transform: scale(1.05);
+    }
+
+    .content {
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 16px;
+      box-shadow: 0 0 20px #00ffee33;
+      animation: fadeIn 1.5s ease-in;
+    }
+
+    iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+      margin-top: 2rem;
+      box-shadow: 0 0 20px rgba(0, 255, 238, 0.3);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .quiz {
+      margin-top: 2rem;
+    }
+
+    .quiz label {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .quiz input[type="radio"] {
+      margin-right: 0.5rem;
+    }
+
+    .result {
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #00ffaa;
+    }
+  </style>
+</head>
+<body>
+  <header>+Byte$ Premium – Página Interativa Futurista</header>
+
+  <div class="actions">
+    <button onclick="window.print()">🖨️ Imprimir Página</button>
+    <div id="google_translate_element"></div>
+  </div>
+
+  <div class="content">
+    <h2>Visão Byte$</h2>
+    <p>
+      Capacitar você com uma plataforma descentralizada que é ao mesmo tempo uma fonte de receita e diversão. Uma nova identidade virtual para um novo mundo.
+    </p>
+
+    <h2>Visualizador do PDF Oficial</h2>
+    <iframe src="Bytedollar-Premium.pdf" title="PDF Byte$ Premium"></iframe>
+
+    <h2>Quiz Interativo</h2>
+    <div class="quiz">
+      <p><strong>O que garante a transparência do Mega Block-chain?</strong></p>
+      <label><input type="radio" name="quiz1" value="errado" /> Sorteio físico</label>
+      <label><input type="radio" name="quiz1" value="certo" /> Oráculo descentralizado (ex: Chainlink VRF)</label>
+      <label><input type="radio" name="quiz1" value="errado" /> Auditoria manual</label>
+      <button onclick="verificarQuiz()">Verificar</button>
+      <div class="result" id="resultadoQuiz"></div>
+    </div>
+  </div>
+
+  <!-- Google Translate -->
+  <script type="text/javascript">
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({
+        pageLanguage: 'pt',
+        includedLanguages: 'en,es,fr,it,de,pt',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+      }, 'google_translate_element');
+    }
+  </script>
+  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+  <!-- Quiz logic -->
+  <script>
+    function verificarQuiz() {
+      const resposta = document.querySelector('input[name="quiz1"]:checked');
+      const resultado = document.getElementById('resultadoQuiz');
+      if (!resposta) {
+        resultado.textContent = 'Selecione uma resposta.';
+        return;
+      }
+      if (resposta.value === 'certo') {
+        resultado.textContent = '✅ Resposta correta!';
+      } else {
+        resultado.textContent = '❌ Resposta incorreta. Tente novamente!';
+      }
+    }
+  </script>
+</body>
+</html>
