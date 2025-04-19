@@ -1,0 +1,12 @@
+{
+  "name": "chat-bytes",
+  "version": "1.0.0",
+  "description": "Chat futurista Byte$ com deploy automático via Firebase",
+  "main": "index.html",
+  "scripts": {
+    "start": "echo 'Nenhum start necessário para HTML puro'",
+    "build": "echo 'Nenhum build necessário para HTML/CSS/JS puro'"
+  },
+  "author": "Byte$",
+  "license": "MIT"
+}
