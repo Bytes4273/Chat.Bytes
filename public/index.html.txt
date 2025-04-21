@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+ <html lang="pt-BR">
+ <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Byte$ World Chat</title>
+  <link rel="stylesheet" href="style.css" />
+ </head>
+ <body>
+  <div id="login-container" class="centered">
+    <h2>Bem-vindo ao Byte$ World Chat</h2>
+    <input type="email" id="email" placeholder="Email" />
+    <input type="password" id="password" placeholder="Senha" />
+    <button onclick="login()">Entrar</button>
+    <button onclick="register()">Registrar</button>
+  </div>
+  <div id="chat-container" style="display: none;">
+    <div id="header">
+      <span id="user-name"></span>
+      <button onclick="logout()">Sair</button>
+    </div>
+    <div id="messages"></div>
+    <input type="text" id="message-input" placeholder="Digite sua mensagem..." />
+    <button onclick="sendMessage()">Enviar</button>
+  </div>
+  <script type="module">
+    import { initializeApp } from
+ "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword,
+ createUserWithEmailAndPassword, signOut } from
+ "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot,
+ serverTimestamp } from
+ "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyC_lh_plP9mRyD48ph3E_6_QyJnTQqGZqE",
+      authDomain: "bytes-world--business.firebaseapp.com",
+      projectId: "bytes-world--business",
+      storageBucket: "bytes-world--business.firebasestorage.app",
+      messagingSenderId: "226833017696",
+      appId: "1:226833017696:web:11895a597a6e6c9a928c05",
+      measurementId: "G-JQYDX6XEZJ"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const loginContainer = document.getElementById("login-container");
+    const chatContainer = document.getElementById("chat-container");
+    const userNameDisplay = document.getElementById("user-name");
+    async function login() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (error) {
+        alert("Erro no login: " + error.message);
+      }
+    }
+    async function register() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        alert("Registrado com sucesso!");
+      } catch (error) {
+        alert("Erro no registro: " + error.message);
+      }
+    }
+    async function logout() {
+      await signOut(auth);
+    }
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loginContainer.style.display = "none";
+        chatContainer.style.display = "block";
+        userNameDisplay.innerText = "Usuário: " + user.email;
+        listenMessages();
+      } else {
+        loginContainer.style.display = "block";
+        chatContainer.style.display = "none";
+      }
+    });
+    async function sendMessage() {
+      const input = document.getElementById("message-input");
+      const text = input.value.trim();
+      if (text) {
+        await addDoc(collection(db, "mensagens"), {
+          texto: text,
+          email: auth.currentUser.email,
+          criadoEm: serverTimestamp()
+        });
+        input.value = "";
+      }
+    }
+    function listenMessages() {
+      const mensagensRef = collection(db, "mensagens");
+      const q = query(mensagensRef, orderBy("criadoEm"));
+      const mensagensDiv = document.getElementById("messages");
+      onSnapshot(q, (snapshot) => {
+        mensagensDiv.innerHTML = "";
+        snapshot.forEach((doc) => {
+          const msg = doc.data();
+          const div = document.createElement("div");
+          div.textContent = `${msg.email}: ${msg.texto}`;
+          mensagensDiv.appendChild(div);
+        });
+      });
+    }
+  </script>
+ </body>
+ </html>

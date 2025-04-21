@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🌊🦈Byte$ World Business🌍📊 - 💬👥Chat Online📟📡</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    crossorigin="anonymous"
+  />
+  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-functions-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.6.0/firebase-storage-compat.js"></script>
+  <style>
+    /* Reset and base */
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: var(--background-color, #0a0a0a);
+      color: var(--text-color, #00fff7);
+      font-family: 'Orbitron', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      transition: background-color 0.5s ease, color 0.5s ease;
+    }
+    .chat-wrapper {
+      max-width: 900px;
+      width: 90vw;
+      max-height: 90vh;
+      margin: 0 auto;
+      padding: 20px;
+      background: #111111;
+      border-radius: 15px;
+      box-shadow:
+        0 0 10px #00fff7,
+        0 0 20px #ff00ff,
+        0 0 30px #00fff7;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: background-color 0.5s ease;
+    }
+    .chat-header {
+      font-size: 1.8rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 20px;
+      color: #ff00ff;
+      text-shadow:
+        0 0 1px #ff00ff,
+        0 0 2px #ff00ff,
+        0 0 3px #ff00ff;
+      transition: color 0.5s ease, text-shadow 0.5s ease;
+    }
+    .chat-header span {
+      color: #00fff7 !important;
+      text-shadow:
+        0 0 1.5px #00fff7,
+        0 0 3px #00fff7,
+        0 0 4px #00fff7;
+    }
+    button.profile-btn,
+    button.logout-btn {
+      background: transparent;
+      border: 2px solid #00fff7;
+      color: #00fff7;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-left: 6px;
+      box-shadow:
+        0 0 3px #00fff7,
+        0 0 6px #00fff7;
+    }
+    button.profile-btn:hover,
+    button.logout-btn:hover {
+      background: #00fff7;
+      color: #0a0a0a;
+      box-shadow:
+        0 0 10px #00fff7,
+        0 0 20px #00fff7;
+    }
+    .chat-body {
+      background: #121212;
+      border: 1px solid #00fff7;
+      border-radius: 12px;
+      height: 350px;
+      overflow-y: auto;
+      padding: 15px;
+      color: #00fff7;
+      font-size: 1rem;
+      box-shadow:
+        inset 0 0 10px #00fff7;
+      transition: background-color 0.5s ease, color 0.5s ease;
+    }
+    .chat-msg {
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(0, 255, 247, 0.1);
+      box-shadow:
+        0 0 5px #00fff7;
+      color: #00fff7;
+      word-wrap: break-word;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .chat-msg.user-msg {
+      background: rgba(255, 0, 255, 0.15);
+      box-shadow:
+        0 0 8px #ff00ff;
+      color: #ff00ff;
+      text-align: right;
+    }
+    .msg-author {
+      font-weight: 700;
+      color: #ff00ff;
+      text-shadow:
+        0 0 5px #ff00ff;
+    }
+    .chat-footer {
+      margin-top: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    #userInput {
+      flex-grow: 1;
+      padding: 10px 15px;
+      border-radius: 12px;
+      border: 2px solid #00fff7;
+      background: #121212;
+      color: #00fff7;
+      font-size: 1rem;
+      box-shadow:
+        0 0 8px #00fff7 inset;
+      transition: border-color 0.3s ease;
+    }
+    #userInput:focus {
+      outline: none;
+      border-color: #ff00ff;
+      box-shadow:
+        0 0 12px #ff00ff inset;
+    }
+    #sendBtn {
+      background: #ff00ff;
+      border: none;
+      color: #0a0a0a;
+      font-size: 1.5rem;
+      padding: 10px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow:
+        0 0 10px #ff00ff,
+        0 0 20px #ff00ff;
+      transition: background-color 0.3s ease;
+    }
+    #sendBtn:disabled {
+      background: #550055;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    #sendBtn:hover:not(:disabled) {
+      background: #ff33ff;
+      box-shadow:
+        0 0 15px #ff33ff,
+        0 0 30px #ff33ff;
+    }
+    #typingIndicator {
+      color: #0ff;
+      font-style: italic;
+      margin-left: 10px;
+      font-size: 0.9rem;
+      text-shadow:
+        0 0 5px #0ff;
+    }
+    .error-message, .success-message {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: 700;
+      text-align: center;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow:
+        0 0 10px #ff0000;
+    }
+    .error-message {
+      background: #330000;
+      color: #ff4444;
+      box-shadow:
+        0 0 15px #ff4444;
+    }
+    .success-message {
+      background: #003300;
+      color: #44ff44;
+      box-shadow:
+        0 0 15px #44ff44;
+    }
+    /* Login Screen */
+    .login-screen {
+      background: #111111;
+      border: 2px solid #00fff7;
+      border-radius: 15px;
+      padding: 30px 20px;
+      max-width: 400px;
+      margin: 30px auto;
+      box-shadow:
+        0 0 15px #00fff7,
+        0 0 30px #00fff7;
+      color: #00fff7;
+      text-align: center;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .login-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      text-shadow:
+        0 0 10px #00fff7,
+        0 0 20px #00fff7;
+    }
+    .login-input {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 15px;
+      border-radius: 12px;
+      border: 2px solid #00fff7;
+      background: #121212;
+      color: #00fff7;
+      font-size: 1rem;
+      box-shadow:
+        inset 0 0 8px #00fff7;
+      transition: border-color 0.3s ease;
+    }
+    .login-input:focus {
+      outline: none;
+      border-color: #ff00ff;
+      box-shadow:
+        0 0 12px #ff00ff inset;
+    }
+    .login-btn {
+      background: #ff00ff;
+      border: none;
+      color: #0a0a0a;
+      font-weight: 700;
+      padding: 4px 10px;
+      margin: 2px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      box-shadow:
+        0 0 5px #ff00ff,
+        0 0 10px #ff00ff;
+      transition: background-color 0.3s ease;
+    }
+    .login-btn:hover {
+      background: #ff33ff;
+      box-shadow:
+        0 0 8px #ff33ff,
+        0 0 16px #ff33ff;
+    }
+    /* Registration Screen */
+    .registration-screen {
+      background: #111111;
+      border: 2px solid #ff00ff;
+      border-radius: 15px;
+      padding: 30px 20px;
+      max-width: 400px;
+      margin: 30px auto;
+      color: #ff00ff;
+      text-align: center;
+      box-shadow:
+        0 0 15px #ff00ff,
+        0 0 30px #ff00ff;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .registration-screen input {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 15px;
+      border-radius: 12px;
+      border: 2px solid #ff00ff;
+      background: #121212;
+      color: #ff00ff;
+      font-size: 1rem;
+      box-shadow:
+        inset 0 0 8px #ff00ff;
+      transition: border-color 0.3s ease;
+    }
+    .registration-screen input:focus {
+      outline: none;
+      border-color: #00fff7;
+      box-shadow:
+        0 0 12px #00fff7 inset;
+    }
+    .registration-screen button {
+      background: #00fff7;
+      border: none;
+      color: #0a0a0a;
+      font-weight: 700;
+      padding: 12px 20px;
+      margin: 5px;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow:
+        0 0 10px #00fff7,
+        0 0 20px #00fff7;
+      transition: background-color 0.3s ease;
+    }
+    .registration-screen button:hover {
+      background: #33ffff;
+      box-shadow:
+        0 0 15px #33ffff,
+        0 0 30px #33ffff;
+    }
+    /* Profile Modal */
+    .profile-modal {
+      background: #111111;
+      border: 2px solid #ff00ff;
+      border-radius: 15px;
+      padding: 20px;
+      max-width: 600px;
+      margin: 30px auto;
+      color: #ff00ff;
+      box-shadow:
+        0 0 15px #ff00ff,
+        0 0 30px #ff00ff;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .profile-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+      font-size: 1.5rem;
+      margin-bottom: 15px;
+      color: #ff00ff;
+      text-shadow:
+        0 0 8px #ff00ff;
+    }
+    .profile-header button {
+      background: transparent;
+      border: none;
+      color: #ff00ff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+    .profile-header button:hover {
+      color: #00fff7;
+      text-shadow:
+        0 0 10px #00fff7;
+    }
+    .profile-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    .tab-btn {
+      background: transparent;
+      border: 2px solid #ff00ff;
+      color: #ff00ff;
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow:
+        0 0 8px #ff00ff;
+      transition: all 0.3s ease;
+    }
+    .tab-btn.active,
+    .tab-btn:hover {
+      background: #ff00ff;
+      color: #0a0a0a;
+      box-shadow:
+        0 0 15px #ff00ff,
+        0 0 30px #ff00ff;
+    }
+    .tab-content {
+      background: #121212;
+      border-radius: 12px;
+      padding: 15px;
+      color: #00fff7;
+      box-shadow:
+        inset 0 0 10px #00fff7;
+      min-height: 100px;
+      transition: background-color 0.5s ease, color 0.5s ease;
+    }
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #111111;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #ff00ff;
+      border-radius: 10px;
+      box-shadow:
+        0 0 5px #ff00ff;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #ff33ff;
+    }
+    /* Accessibility improvements */
+    input::placeholder {
+      color: #00fff7;
+      opacity: 0.7;
+    }
+    /* Responsive */
+    @media (max-width: 600px) {
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      .chat-wrapper {
+        max-width: 100%;
+        width: 95vw;
+        max-height: 95vh;
+        height: 95vh;
+        margin: 0 auto;
+        padding: 15px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+      }
+      .chat-body {
+        height: calc(95vh - 180px);
+        overflow-y: auto;
+      }
+      .chat-footer {
+        flex-shrink: 0;
+      }
+      .login-screen, .registration-screen, .profile-modal {
+        max-width: 100%;
+        margin: 15px auto;
+        padding: 20px 15px;
+        box-sizing: border-box;
+      }
+      .g-recaptcha {
+        transform: scale(0.8);
+        transform-origin: 0 0;
+        margin: 10px auto;
+      }
+      button.login-btn {
+        padding: 6px 12px;
+        font-size: 0.75rem;
+      }
+      #sendBtn {
+        font-size: 1.2rem;
+        padding: 8px 14px;
+      }
+    }
+    /* Animação entre seções */
+    .chat-wrapper > * {
+      transition: all 0.5s ease-in-out;
+      opacity: 1;
+    }
+    .hidden-section {
+      opacity: 0 !important;
+      pointer-events: none;
+    }
+    /* Modo automático com base no horário */
+    :root {
+      --background-color: #0a0a0a;
+      --text-color: #00fff7;
+    }
+    body.light-mode {
+      --background-color: #ffffff;
+      --text-color: #000000;
+    }
+  </style>
+</head>
+<body>
+<!-- Toast de mensagens -->
+<div id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 9999;"></div>
+
+<!-- Loader de carregamento -->
+<div id="loadingOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9998;justify-content:center;align-items:center;color:#00fff7;font-size:1.5rem;font-family:'Orbitron',sans-serif;">
+  Carregando...
+</div>
+
+<!-- Notificação sonora -->
+<audio id="notificationSound" src="https://assets.mixkit.co/sfx/preview/mixkit-confirmation-tone-2867.mp3" preload="auto"></audio>
+
+<div class="chat-wrapper" role="main" aria-label="Chat online Byte$ World Business">
+  <div class="chat-header" role="banner">
+    🌊🦈Byte$ World Business🌍📊<br />
+    <span>💬👥Chat Online📟📡</span>
+    <button class="profile-btn" id="profileBtn" style="display:none;" aria-label="Abrir perfil">Perfil</button>
+    <button class="logout-btn" id="logoutBtn" style="display:none;" aria-label="Sair do chat">Sair</button>
+    <button id="themeToggleBtn" aria-label="Alternar tema" title="Alternar tema" style="margin-left: 10px; background: transparent; border: 2px solid #00fff7; color: #00fff7; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.85rem; cursor: pointer; box-shadow: 0 0 3px #00fff7, 0 0 6px #00fff7;">Tema</button>
+    <select id="languageSelect" aria-label="Selecionar idioma" title="Selecionar idioma" style="margin-left: 10px; background: transparent; border: 2px solid #00fff7; color: #00fff7; padding: 4px 8px; border-radius: 6px; font-weight: 700; font-size: 0.85rem; cursor: pointer; box-shadow: 0 0 3px #00fff7, 0 0 6px #00fff7;">
+      <option value="pt-BR" selected>Português</option>
+      <option value="en-US">English</option>
+    </select>
+  </div>
+
+  <div class="chat-body" id="chatBody" tabindex="0" aria-live="polite" aria-relevant="additions" style="display:none;"></div>
+
+  <div class="chat-footer" role="contentinfo" style="display:none;">
+    <input type="text" id="userInput" placeholder="Digite sua mensagem..." disabled aria-label="Campo para digitar mensagem" />
+    <button id="sendBtn" disabled aria-label="Enviar mensagem">➤</button>
+    <input type="file" id="stickerInput" accept=".webp,.png,.jpg,.jpeg" style="display:none;" aria-label="Enviar figurinha" />
+    <button id="stickerBtn" title="Enviar figurinha" aria-label="Enviar figurinha" style="display:none;">🖼️</button>
+  </div>
+
+  <div class="error-message" id="errorMessage" role="alert" aria-live="assertive" style="display:none;"></div>
+  <div class="success-message" id="successMessage" role="alert" aria-live="assertive" style="display:none;"></div>
+
+  <div class="login-screen" id="loginScreen" role="form" aria-label="Tela de login">
+    <h2 class="login-title">Entrar na Comunidade</h2>
+    <input type="email" id="loginEmail" placeholder="Seu e-mail" aria-required="true" aria-describedby="loginEmailHelp" class="login-input" style="max-width: 280px; width: 100%;" />
+    <div id="loginEmailHelp" class="sr-only">Digite seu e-mail para login</div>
+    <input type="password" id="loginPassword" placeholder="Sua senha" aria-required="true" class="login-input" style="max-width: 280px; width: 100%;" />
+  
+    <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+      <button id="loginBtn" aria-label="Entrar" class="login-btn">Entrar</button>
+      <button id="showRegistrationBtn" aria-label="Mostrar tela de registro" class="login-btn">Registrar</button>
+      <button id="sendPasswordResetBtn" aria-label="Recuperar senha" class="login-btn">Recuperar Senha</button>
+    </div>
+    <div style="margin-top:15px;">
+      <button id="googleLoginBtn" class="login-btn">🔐 Entrar com Google</button>
+      <button id="facebookLoginBtn" class="login-btn">📘 Entrar com Facebook</button>
+    </div>
+  </div>
+
+  <div class="registration-screen" id="registrationScreen" style="display:none;" role="form" aria-label="Tela de registro">
+    <h2>Registrar na Comunidade</h2>
+    <input type="email" id="regEmail" placeholder="Seu e-mail" required aria-required="true" class="login-input" />
+    <input type="text" id="identityName" placeholder="Nome da Identidade" required aria-required="true" class="login-input" />
+    <input type="text" id="avatarName" placeholder="Nome do Avatar" required aria-required="true" class="login-input" />
+    <input type="password" id="regPassword" placeholder="Sua senha" required aria-required="true" class="login-input" />
+    <span id="passwordLength" style="color: #0ff;">0 caracteres</span>
+    <div style="display: flex; gap: 10px; justify-content: center;">
+      <button id="registerBtn" aria-label="Registrar" class="login-btn">Registrar</button>
+      <button id="hideRegistrationBtn" aria-label="Cancelar registro" class="login-btn">Cancelar</button>
+    </div>
+  </div>
+
+  <div class="profile-modal" id="profileModal" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="profileTitle">
+    <div class="profile-header">
+      <span id="profileTitle">👤 Meu Perfil</span>
+      <button id="closeProfileBtn" aria-label="Fechar perfil">✖</button>
+    </div>
+    <div class="profile-tabs" role="tablist">
+      <button class="tab-btn active" id="tabDadosBtn" role="tab" aria-selected="true" aria-controls="dadosTab">Meus Dados</button>
+      <button class="tab-btn" id="tabTokensBtn" role="tab" aria-selected="false" aria-controls="tokensTab">Tokens</button>
+      <button id="adminTabBtn" style="display:none;" role="tab" aria-selected="false" aria-controls="adminTabContent">Admin</button>
+    </div>
+    <div class="tab-content" id="dadosTab" role="tabpanel" aria-labelledby="tabDadosBtn">
+      <form id="profileEditForm">
+        <label for="editEmail">E-mail:</label><br />
+        <input type="email" id="editEmail" name="editEmail" disabled style="background:#222; color:#0ff; border-radius:6px; border:none; padding:6px; width:100%;" /><br /><br />
+        <label for="editIdentityName">Nome da Identidade:</label><br />
+        <input type="text" id="editIdentityName" name="editIdentityName" style="background:#222; color:#0ff; border-radius:6px; border:none; padding:6px; width:100%;" /><br /><br />
+        <label for="editAvatarName">Nome do Avatar:</label><br />
+        <input type="text" id="editAvatarName" name="editAvatarName" style="background:#222; color:#0ff; border-radius:6px; border:none; padding:6px; width:100%;" /><br /><br />
+        <button type="submit" class="login-btn" style="width: 100%;">Salvar Alterações</button>
+      </form>
+      <div id="adminControls" style="display:none; margin-top: 15px;">
+        <h3>Administração</h3>
+        <div>
+          <button id="showRankingBtn" class="login-btn">Exibir Ranking de Usuários</button>
+          <button id="showModerationPanelBtn" class="login-btn">Painel de Moderação</button>
+          <button id="showRoomApprovalBtn" class="login-btn">Aprovar Salas</button>
+        </div>
+        <div id="adminContent" style="margin-top: 15px; color: #00fff7; max-height: 300px; overflow-y: auto; background: #121212; border-radius: 10px; padding: 10px; box-shadow: inset 0 0 10px #00fff7;"></div>
+      </div>
+    </div>
+    <div class="tab-content" id="tokensTab" style="display:none;" role="tabpanel" aria-labelledby="tabTokensBtn">
+      <iframe src="HashPuzzle-clone.html" width="100%" height="300px" style="border:none; border-radius: 10px;" title="Puzzle de Hash"></iframe>
+    </div>
+    <div class="tab-content" id="adminTabContent" style="display:none;" role="tabpanel" aria-labelledby="adminTabBtn">
+      <p>🔒 Área administrativa</p>
+    </div>
+  </div>
+</div>
+
+<!-- Importa o novo bundle JavaScript do chat -->
+<script src="chat-app.js" type="module"></script>
+
+</body>
+</html>
